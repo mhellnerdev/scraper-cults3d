@@ -3,6 +3,8 @@
 BASE_DIR="/home/rocky/projects/scraper-cults3d"
 NODE_BIN="/home/rocky/.nvm/versions/node/v22.3.0/bin/node"
 SCRIPT_NAME="scraper-cults.js"
+LOG_DIR="/home/rocky/logs/scraper-cults"
+ENV_FILE="$BASE_DIR/.env"
 
 # Check if the correct number of arguments is passed
 if [ "$#" -ne 2 ]; then
@@ -12,6 +14,9 @@ fi
 
 COLLECTION=$1
 ENV=$2
+
+# Ensure log directory exists
+mkdir -p $LOG_DIR
 
 # Function to run the scraper script
 run_scraper() {
@@ -24,7 +29,15 @@ run_scraper() {
         exit 1
     else
         touch $lockfile
-        $NODE_BIN $BASE_DIR/$SCRIPT_NAME $collection $env
+        cd $BASE_DIR
+        if [ -e $ENV_FILE ]; then
+            $NODE_BIN $SCRIPT_NAME $collection $env
+            if [ $? -ne 0 ]; then
+                echo "Error running script for ${collection} in ${env} environment."
+            fi
+        else
+            echo "Environment file $ENV_FILE not found. Exiting."
+        fi
         rm $lockfile
     fi
 }
