@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Runner</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400&display=swap');
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #282c34;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        #buttons {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #buttons button {
+            margin: 0 10px;
+        }
+
+        #terminal-container {
+            width: 80%;
+            height: 70%;
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .xterm {
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="buttons">
+        <button onclick="runScript('scraper-latest.js')">Run Latest Scraper</button>
+        <button onclick="runScript('scraper-selected.js')">Run Selected Scraper</button>
+    </div>
+    <div id="terminal-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+    <script>
+        const term = new Terminal({ fontFamily: 'Fira Code, monospace', fontSize: 14 });
+        const fitAddon = new FitAddon.FitAddon();
+        term.loadAddon(fitAddon);
+        term.open(document.getElementById('terminal-container'));
+        fitAddon.fit();
+
+        const prompt = 'circlesec.net% ';
+        let command = '';
+
+        const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/terminals`);
+
+        socket.onopen = () => {
+            term.writeln('Connected to the terminal.');
+            showPrompt();
+        };
+
+        socket.onmessage = (event) => {
+            term.write(event.data);
+        };
+
+        term.onKey(e => {
+            const char = e.domEvent.key;
+            const printable = !e.domEvent.altKey && !e.domEvent.ctrlKey && !e.domEvent.metaKey;
+
+            if (e.domEvent.keyCode === 13) { // Enter
+                socket.send(command + '\n');
+                command = '';
+                showPrompt();
+            } else if (e.domEvent.keyCode === 8) { // Backspace
+                if (command.length > 0) {
+                    command = command.slice(0, -1);
+                    term.write('\b \b');
+                }
+            } else if (printable) {
+                command += char;
+                term.write(char);
+            }
+        });
+
+        function showPrompt() {
+            term.write('\r\n' + prompt);
+        }
+
+        function runScript(scriptName) {
+            term.writeln(`\r\nRunning script: ${scriptName}`);
+            socket.send(`node ${scriptName}\n`);
+        }
+    </script>
+</body>
+
+</html>
