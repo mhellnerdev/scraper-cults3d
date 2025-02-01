@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+.dockerignore
+.gitignore
+dynamodb_duplicate_killer.js
+pruneRecords.sh
+scraper-best.js
+scraper-selected.js
+scraper-latest.js
+scraper-cults-wrapper.sh
+scraper-latest-wrapper.sh
+scraper-selected-wrapper.sh
+Dockerfile*
