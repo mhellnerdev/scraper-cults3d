@@ -1,0 +1,17 @@
+AWS_REGION=xxxxxxxx
+TABLE_NAME=xxxxxxxx
+
+LATEST_BASE_DOMAIN=https://cults3d.com
+LATEST_BASE_URL=https://cults3d.com/en/creations/latest/page/
+LATEST_QUERY_PARAMS=?only_free=true&sort=first_submitted_at
+
+SELECTED_BASE_DOMAIN=https://cults3d.com
+SELECTED_BASE_URL=https://cults3d.com/en/creations/selected/page/
+SELECTED_QUERY_PARAMS=?only_free=true
+
+AUTO_STOP=true
+AUTO_STOP_PAGES=2
+
+HTTP_DELAY_MS=3000
+GENERAL_RETRY_COUNT=3
+RETRY_WAIT_MS=10000
